@@ -4,11 +4,16 @@ const populateFeed = async ({ name, link }) => {
   return {};
 };
 
-const getFeedEntries = async () => {
+const getFeedEntries = async ({ sourceId }) => {
+  let query = {}
+  if (sourceId) {
+    query.source = sourceId
+  }
   const afterDate = new Date("2019-09-01T00:00:00Z");
 
   const result = await Feed.find({
     notInterested: { $ne: true },
+    ...query,
     $or: [
       { readCount: { $lt: 1 } },
       { readCount: { $exists: false } },

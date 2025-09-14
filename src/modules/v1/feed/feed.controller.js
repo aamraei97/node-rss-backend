@@ -37,13 +37,13 @@ const populate = async (req, res) => {
     // validate result
     let isNotValid = false;
 
-    items.map(((item, index) => {
+    items.map((item, index) => {
       if (!item.link || !item.title || !item.publishedAt) {
         console.log(`Wrong item: ${index}`);
         console.log(items[index]);
         isNotValid = true;
       }
-    }));
+    });
     if (isNotValid) {
       return res
         .status(StatusCodes.BAD_REQUEST)
@@ -84,7 +84,7 @@ const populate = async (req, res) => {
 };
 
 const getFeed = async (req, res) => {
-  const { sourceId } = req.query
+  const { sourceId } = req.query;
   const results = await getFeedEntries({ sourceId });
 
   return res.status(StatusCodes.OK).json({ results });

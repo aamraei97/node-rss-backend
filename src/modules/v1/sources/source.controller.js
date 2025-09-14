@@ -10,7 +10,9 @@ const create = async (req, res) => {
     titleSelector,
     sourceCredibility,
     timeSelector,
+    tags,
   } = req.body;
+
   try {
     const favicon = await getFavicon(link);
 
@@ -22,6 +24,7 @@ const create = async (req, res) => {
       favicon,
       sourceCredibility,
       timeSelector,
+      tags,
     });
 
     return res
@@ -33,7 +36,6 @@ const create = async (req, res) => {
       .status(StatusCodes.INTERNAL_SERVER_ERROR)
       .json({ message: "Failed" });
   }
-
 };
 
 const getAll = async (req, res) => {

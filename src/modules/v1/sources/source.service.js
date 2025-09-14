@@ -8,6 +8,7 @@ const createSource = async ({
   titleSelector,
   timeSelector,
   sourceCredibility,
+  tags,
 }) => {
   const result = await Source.create({
     name,
@@ -17,6 +18,7 @@ const createSource = async ({
     titleSelector,
     timeSelector,
     sourceCredibility,
+    tags,
   });
   return result;
 };

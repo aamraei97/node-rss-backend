@@ -4,23 +4,24 @@ const populateFeed = async ({ name, link }) => {
   return {};
 };
 
-const getFeedEntries = async ({ sourceId }) => {
-  let query = {}
+const getFeedEntries = async ({ sourceId, title }) => {
+  let query = {};
   if (sourceId) {
-    query.source = sourceId
+    query.source = sourceId;
+  }
+  if (title) {
+    query.title = { $regex: title, $options: "i" };
   }
   const afterDate = new Date("2019-09-01T00:00:00Z");
 
   const result = await Feed.find({
     notInterested: { $ne: true },
     ...query,
-    $or: [
-      { readCount: { $lt: 1 } },
-      { readCount: { $exists: false } },
-    ],
+    $or: [{ readCount: { $lt: 1 } }, { readCount: { $exists: false } }],
     $expr: { $gt: [{ $toDate: "$publishedAt" }, afterDate] },
   })
     .sort({ publishedAt: -1 })
+    // .skip(600)
     .populate("source");
 
   return result;

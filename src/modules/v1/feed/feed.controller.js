@@ -84,8 +84,8 @@ const populate = async (req, res) => {
 };
 
 const getFeed = async (req, res) => {
-  const { sourceId } = req.query;
-  const results = await getFeedEntries({ sourceId });
+  const { sourceId, title } = req.query;
+  const results = await getFeedEntries({ sourceId, title });
 
   return res.status(StatusCodes.OK).json({ results });
 };

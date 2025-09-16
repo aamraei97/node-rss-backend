@@ -18,6 +18,7 @@ if (fs.existsSync(envFile)) {
 const envKeys = {
   MONGO_URL: process.env.MONGO_URL,
   PORT: process.env.PORT,
+  RESEND_KEY: process.env.RESEND_KEY,
 };
 
 module.exports = { envKeys };

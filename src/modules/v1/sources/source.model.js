@@ -42,7 +42,7 @@ const sourceSchema = new mongoose.Schema(
       },
     },
   },
-  { timeStamps: true }
+  { timestamps: true }
 );
 sourceSchema.pre("save", function (next) {
   const map = {

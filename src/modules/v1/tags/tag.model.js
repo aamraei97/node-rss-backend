@@ -8,7 +8,7 @@ const tagSchema = new mongoose.Schema(
       trim: true,
     },
   },
-  { timeStamps: true }
+  { timestamps: true }
 );
 
 const Tag = mongoose.model("Tag", tagSchema);

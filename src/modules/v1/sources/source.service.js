@@ -25,22 +25,7 @@ const createSource = async ({
 
 const getAllSources = async () => {
   const result = await Source.aggregate([
-    {
-      $addFields: {
-        credibilityRank: {
-          $switch: {
-            branches: [
-              { case: { $eq: ["$sourceCredibility", "very-high"] }, then: 4 },
-              { case: { $eq: ["$sourceCredibility", "high"] }, then: 3 },
-              { case: { $eq: ["$sourceCredibility", "medium"] }, then: 2 },
-              { case: { $eq: ["$sourceCredibility", "low"] }, then: 1 },
-            ],
-            default: 0,
-          },
-        },
-      },
-    },
-    { $sort: { credibilityRank: -1 } }, // descending: very-high → low
+    { $sort: { credibilityRank: -1, lastCrawl: -1 } }, // descending: very-high → low
     { $project: { credibilityRank: 0 } },
   ]);
 

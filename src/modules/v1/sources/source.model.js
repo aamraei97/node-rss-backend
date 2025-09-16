@@ -30,20 +30,32 @@ const sourceSchema = new mongoose.Schema(
       enum: ["low", "medium", "high", "very-high"],
       default: "medium",
     },
+    credibilityRank: { type: Number, default: 0 }, // derived field
     tags: {
       type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Tag" }],
       default: [],
       validate: {
         validator: function (arr) {
-          return arr.every(tag => tag instanceof mongoose.Types.ObjectId);
+          return arr.every((tag) => tag instanceof mongoose.Types.ObjectId);
         },
-        message: "All tags must be valid ObjectId."
-      }
-    }
+        message: "All tags must be valid ObjectId.",
+      },
+    },
   },
   { timeStamps: true }
 );
+sourceSchema.pre("save", function (next) {
+  const map = {
+    "very-high": 4,
+    high: 3,
+    medium: 2,
+    low: 1,
+  };
 
+  this.credibilityRank = map[this.sourceCredibility] || 0;
+
+  next();
+});
 const Source = mongoose.model("Source", sourceSchema);
 
 module.exports = { Source };

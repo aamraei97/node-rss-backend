@@ -30,7 +30,7 @@ const populate = async (req, res) => {
       console.log("RAQ XML RESULT: ", parseResults.items[0]);
       items = parseResults.items.map((item) => ({
         ...item,
-        publishedAt: item.pubDate,
+        publishedAt: item.pubDate || new Date(),
       }));
     }
 
@@ -69,8 +69,8 @@ const populate = async (req, res) => {
       },
     }));
 
-    await Feed.bulkWrite(operations);
-    await Source.findByIdAndUpdate(sourceId, { lastCrawl: new Date() });
+    // await Feed.bulkWrite(operations);
+    // await Source.findByIdAndUpdate(sourceId, { lastCrawl: new Date() });
 
     return res
       .status(StatusCodes.CREATED)

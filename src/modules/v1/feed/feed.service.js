@@ -40,6 +40,7 @@ const getFeedEntries = async ({
     },
   });
   allQueries.push({ $unwind: "$source" }); // turn array into object);
+  // allQueries.push({ $skip: 500 }); // turn array into object);
   if (sourceCredibility) {
     allQueries.push({
       $match: {
@@ -49,7 +50,6 @@ const getFeedEntries = async ({
   }
   allQueries.push({ $sort: { publishedAt: -1 } });
 
-  console.log(allQueries);
   const result = await Feed.aggregate(allQueries);
 
   return result;

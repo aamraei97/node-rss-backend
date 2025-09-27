@@ -12,10 +12,10 @@ const getFeedEntries = async ({
   sourceCredibility,
   showReadHistory,
 }) => {
-  let afterDate = new Date("2019-09-01T00:00:00Z");
-  if (after && new Date(after) > afterDate) {
-    afterDate = new Date(after);
-  }
+  // let afterDate = new Date("2019-09-01T00:00:00Z");
+  // if (after && new Date(after) > afterDate) {
+  //   afterDate = new Date(after);
+  // }
   let allQueries = [];
   let matchQueries = {};
   if (sourceId) {
@@ -37,7 +37,7 @@ const getFeedEntries = async ({
     $match: {
       notInterested: { $ne: true },
       ...matchQueries,
-      $expr: { $gt: [{ $toDate: "$publishedAt" }, afterDate] },
+      // $expr: { $gt: [{ $toDate: "$publishedAt" }, afterDate] },
     },
   });
   allQueries.push({
@@ -57,11 +57,28 @@ const getFeedEntries = async ({
       },
     });
   }
-  allQueries.push({ $sort: { publishedAt: -1 } });
 
-  const result = await Feed.aggregate(allQueries);
+  if (showReadHistory) {
+    allQueries.push({ $sort: { lastReadAt: -1 } });
+  } else {
+    allQueries.push({ $sort: { publishedAt: -1 } });
+  }
 
-  return result;
+  // ✅ Facet: data + totalCount
+  const result = await Feed.aggregate([
+    ...allQueries,
+    {
+      $facet: {
+        data: [{ $skip: 0 }, { $limit: 50000 }],
+        totalCount: [{ $count: "count" }],
+      },
+    },
+  ]);
+
+  return {
+    data: result[0].data,
+    totalCount: result[0].totalCount[0].count,
+  };
 };
 
 const increaseReadCountByOne = async ({ feedId }) => {

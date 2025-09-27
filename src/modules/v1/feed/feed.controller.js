@@ -99,7 +99,10 @@ const getFeed = async (req, res) => {
     showReadHistory,
   });
 
-  return res.status(StatusCodes.OK).json({ results });
+  return res.status(StatusCodes.OK).json({
+    data: results.data,
+    totalCount: results.totalCount,
+  });
 };
 
 const increaseReadCount = async (req, res) => {

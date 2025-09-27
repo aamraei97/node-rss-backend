@@ -24,6 +24,9 @@ const feedSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+    lastReadAt: {
+      type: Date,
+    },
     notInterested: {
       type: Boolean,
       default: false,

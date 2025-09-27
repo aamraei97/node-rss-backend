@@ -10,6 +10,7 @@ const getFeedEntries = async ({
   title,
   after,
   sourceCredibility,
+  showReadHistory,
 }) => {
   let afterDate = new Date("2019-09-01T00:00:00Z");
   if (after && new Date(after) > afterDate) {
@@ -23,11 +24,19 @@ const getFeedEntries = async ({
   if (title) {
     matchQueries.title = { $regex: title, $options: "i" };
   }
+  if (showReadHistory) {
+    matchQueries["readCount"] = { $gt: 0 };
+  } else {
+    matchQueries["$or"] = [
+      { readCount: { $lt: 1 } },
+      { readCount: { $exists: false } },
+    ];
+  }
+
   allQueries.push({
     $match: {
       notInterested: { $ne: true },
       ...matchQueries,
-      $or: [{ readCount: { $lt: 1 } }, { readCount: { $exists: false } }],
       $expr: { $gt: [{ $toDate: "$publishedAt" }, afterDate] },
     },
   });
@@ -58,7 +67,7 @@ const getFeedEntries = async ({
 const increaseReadCountByOne = async ({ feedId }) => {
   const feed = await Feed.findByIdAndUpdate(
     feedId,
-    { $inc: { readCount: 1 } },
+    { $inc: { readCount: 1 }, lastReadAt: new Date() },
     { new: true }
   );
 

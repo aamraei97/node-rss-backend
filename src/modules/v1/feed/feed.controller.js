@@ -89,12 +89,14 @@ const populate = async (req, res) => {
 };
 
 const getFeed = async (req, res) => {
-  const { sourceId, title, after, sourceCredibility } = req.query;
+  const { sourceId, title, after, sourceCredibility, showReadHistory } =
+    req.query;
   const results = await getFeedEntries({
     sourceId,
     title,
     after,
     sourceCredibility,
+    showReadHistory,
   });
 
   return res.status(StatusCodes.OK).json({ results });
@@ -116,4 +118,9 @@ const notInterested = async (req, res) => {
   return res.status(StatusCodes.OK).json({ result });
 };
 
-module.exports = { populate, getFeed, increaseReadCount, notInterested };
+module.exports = {
+  populate,
+  getFeed,
+  increaseReadCount,
+  notInterested,
+};

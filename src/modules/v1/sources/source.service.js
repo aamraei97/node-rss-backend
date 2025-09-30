@@ -58,6 +58,12 @@ const getAllSources = async () => {
                     ],
                   },
                   {
+                    $or: [
+                      { $eq: ["$readCount", 0] },
+                      { $not: [{ $ifNull: ["$readCount", 0] }] },
+                    ],
+                  },
+                  {
                     $gt: [
                       { $toDate: "$publishedAt" },
                       new Date("2019-09-01T00:00:00Z"),
@@ -78,7 +84,7 @@ const getAllSources = async () => {
       },
     },
     { $sort: { credibilityRank: -1, lastCrawl: -1 } }, // descending: very-high → low
-    { $project: { credibilityRank: 0 } },
+    { $project: { credibilityRank: 0, feeds: 0 } },
   ]);
 
   // cache the result

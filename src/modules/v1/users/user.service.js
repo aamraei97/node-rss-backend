@@ -3,17 +3,21 @@ const crypto = require("crypto");
 const jwt = require("jsonwebtoken");
 
 const { resendClient } = require("../../../lib/resend");
+const { AppError } = require("../../../utils/app-error");
 
 const { User } = require("./user.model");
+
 const {
   RegistrationSession,
 } = require("../registration-session/registration-session.model");
 const { StatusCodes } = require("http-status-codes");
 
 const enterEmail = async ({ email }) => {
-  const existingUser = await User.findOne({ email });
+  const existingUser = await User.findOne({ email }).select("+password");
+  console.log({ existingUser });
   if (existingUser && existingUser?.password) {
     return {
+      success: true,
       step: "password",
     };
   }
@@ -100,4 +104,25 @@ const setPassword = async ({ email, otp, password }) => {
 
   return { success: true, token, user, statusCode: StatusCodes.CREATED };
 };
-module.exports = { enterEmail, verifyEmail, setPassword };
+const login = async ({ email, password }) => {
+  // Check if user exists
+  const user = await User.findOne({ email }).select("+password");
+  if (!user) {
+    throw new AppError("User not found", StatusCodes.NOT_FOUND);
+  }
+
+  // Check password
+  const isPasswordValid = await bcrypt.compare(password, user.password);
+  if (!isPasswordValid) {
+    throw new AppError("Invalid password", StatusCodes.BAD_REQUEST);
+  }
+
+  // Generate JWT token
+  const token = jwt.sign({ userId: user._id }, "test");
+
+  // Password verified — return sanitized user
+  const { password: _, ...sanitizedUser } = user.toObject();
+
+  return { token, user: sanitizedUser, success: true };
+};
+module.exports = { enterEmail, verifyEmail, setPassword, login };

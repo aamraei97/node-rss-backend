@@ -13,7 +13,6 @@ const authEnterEmail = async (req, res) => {
       .status(StatusCodes.OK)
       .json({ message: "Otp Send to Your Email", result });
   } catch (error) {
-    console.log({ error });
     return res
       .status(StatusCodes.INTERNAL_SERVER_ERROR)
       .json({ message: "Failed" });
@@ -28,7 +27,6 @@ const authVerifyOtp = async (req, res) => {
       email,
       otp,
     });
-    console.log({ result });
     if (result.success) {
       return res
         .status(StatusCodes.OK)
@@ -53,13 +51,23 @@ const authSetPassword = async (req, res) => {
 
   const result = await UserService.setPassword({ email, otp, password });
   if (result.success) {
-    return res
-      .status(result.statusCode)
-      .json({
-        message: "User Created",
-        token: result.token,
-        user: result.user,
-      });
+    return res.status(result.statusCode).json({
+      message: "User Created",
+      token: result.token,
+      user: result.user,
+    });
   }
 };
-module.exports = { authEnterEmail, authVerifyOtp, authSetPassword };
+
+const authLogin = async (req, res) => {
+  const { password, email } = req.body;
+
+  const result = await UserService.login({
+    email,
+    password,
+  });
+  if (result.success) {
+    return res.status(StatusCodes.OK).json({ message: "LoggedIn!", result });
+  }
+};
+module.exports = { authEnterEmail, authVerifyOtp, authSetPassword, authLogin };

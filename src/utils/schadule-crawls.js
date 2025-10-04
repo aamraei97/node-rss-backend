@@ -1,6 +1,6 @@
 const cron = require("node-cron");
 const { Source } = require("../modules/v1/sources/source.model");
-const { populate } = require("../modules/v1/feed/feed.controller");
+const { populateFeed } = require("../modules/v1/feed/feed.service");
 
 const runningJobs = new Map();
 
@@ -10,7 +10,20 @@ async function crawlSource(source) {
   );
 
   try {
-    await populate(source._id.toString());
+    // get the last crawl time
+    const lastCrawlTime = new Date(source.lastCrawl);
+
+    // check if the last crawl time is less than the crawl period
+    if (
+      lastCrawlTime >
+      new Date(Date.now() - source.crawlPeriod * 24 * 60 * 60 * 1000)
+    ) {
+      console.log(
+        `[CRAWL] Skipping job for Source ID: ${source._id} because it was last crawled less than ${source.crawlPeriod} days ago`
+      );
+      return;
+    }
+    await populateFeed({ sourceId: source._id.toString() });
     console.log(`[CRAWL] Completed job for Source ID: ${source._id}`);
   } catch (error) {
     console.error(
@@ -33,11 +46,13 @@ async function startAllJobs() {
       if (runningJobs.has(source._id)) {
         runningJobs.get(source._id).stop();
         runningJobs.delete(source._id);
-        console.log(`[CRAWL] Stopped running job for Source ID: ${source._id}`);
+        console.log(
+          `[CRAWL] Stopped running job for Source ID: ${source._id}-${source.name}`
+        );
       }
 
       // create a valid cron job time schema based on crawl Period. 1 day, 2 day, 3day and etc.
-      const cronTime = `0 0 ${source.crawlPeriod} * * *`;
+      const cronTime = `0 ${parseInt(source.crawlPeriod) * 24} * * *`;
 
       if (cron.validate(cronTime)) {
         // create a new job
@@ -58,11 +73,15 @@ async function startAllJobs() {
         // start job
         job.start();
       } else {
-        console.log(`[CRAWL] Invalid cron time for Source ID: ${source._id}`);
+        console.log(
+          `[CRAWL] Invalid cron time for Source ID: ${source._id}-${source.name}`
+        );
         continue;
       }
 
-      console.log(`[CRAWL] Started job for Source ID: ${source._id}`);
+      console.log(
+        `[CRAWL] Started job for Source ID: ${source._id}-${source.name}`
+      );
     }
   } catch (error) {
     console.error(`[CRAWL] Error starting all crawls`, error);

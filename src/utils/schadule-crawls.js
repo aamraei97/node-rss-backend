@@ -52,7 +52,7 @@ async function startAllJobs() {
       }
 
       // create a valid cron job time schema based on crawl Period. 1 day, 2 day, 3day and etc.
-      const cronTime = `0 ${parseInt(source.crawlPeriod) * 24} * * *`;
+      const cronTime = `0 ${parseInt(source.crawlPeriod) * 23} * * *`;
 
       if (cron.validate(cronTime)) {
         // create a new job

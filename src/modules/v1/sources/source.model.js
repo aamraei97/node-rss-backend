@@ -25,6 +25,11 @@ const sourceSchema = new mongoose.Schema(
     lastCrawl: {
       type: Date,
     },
+    crawlPeriod: {
+      type: Number,
+      default: 1,
+      enum: [1, 2, 3, 4, 5, 6, 7],
+    },
     sourceCredibility: {
       type: String,
       enum: ["low", "medium", "high", "very-high"],
